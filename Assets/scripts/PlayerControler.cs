@@ -19,6 +19,8 @@ public class PlayerControler : MonoBehaviour
     {
         inputHorizontal = Input.GetAxisRaw("Horizontal");
         //inputVertical = Input.GetAxis("Vertical");
+
+        Debug.Log(inputHorizontal);
         if (Input.GetKeyDown(KeyCode.Space))
         {
             jumpPressed = true;
