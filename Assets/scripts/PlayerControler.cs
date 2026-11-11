@@ -32,18 +32,7 @@ public class PlayerControler : MonoBehaviour
     }
 
 
-    private void OnCollisionStay2D(Collision2D collision)
-    {
-        foreach (ContactPoint2D contact in collision.contacts)
-        {
-            // surface is mostly upward aka floor, and not already moving up
-            if (contact.normal.y > 0.7f && rb.linearVelocity.y <= 0.1f)
-            {
-                isGrounded = true;
-                return;
-            }
-        }
-    }
+
 
     private void FixedUpdate()
     {
