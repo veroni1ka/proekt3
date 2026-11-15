@@ -4,6 +4,7 @@ using UnityEngine;
 public class Collectable : MonoBehaviour
 {
     public float fallSpeed = 1f;   // grav pull down
+    public float killY = -10f;     // kill koga e below hightot
 
     private Rigidbody2D rb;
 
@@ -13,13 +14,21 @@ public class Collectable : MonoBehaviour
         rb.gravityScale = fallSpeed;
     }
 
+    private void Update()
+    {
+        // fell off screen, player dodging
+        if (transform.position.y < killY)
+        {
+            Destroy(gameObject);
+        }
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // checkin
         if (!other.CompareTag("Player")) return;
 
         Debug.Log("Player touched " + gameObject.name);
 
-        Destroy(other.gameObject);
+        Destroy(other.gameObject);   // game over
     }
 }
