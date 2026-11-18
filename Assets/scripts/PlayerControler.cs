@@ -5,51 +5,52 @@ public class PlayerControler : MonoBehaviour
     public float moveSpeed;
     public float jumpHeight;
     private bool jumpPressed;
-    private bool isGrounded;
 
     private Rigidbody2D rb;
     private float inputHorizontal;
-    //private float inputVertical;
+    private float startScaleX;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        startScaleX = Mathf.Abs(transform.localScale.x);
     }
 
     private void Update()
     {
         inputHorizontal = Input.GetAxisRaw("Horizontal");
-        //inputVertical = Input.GetAxis("Vertical");
 
-        Debug.Log(inputHorizontal);
-        if (Input.GetKeyDown(KeyCode.Space))
+        // face the way we walk by mirroring the whole character
+        if (inputHorizontal > 0)
         {
-            if (!isGrounded) jumpPressed = false;
-            jumpPressed = true;
+            SetFacing(-1);     // D = right
+        }
+        else if (inputHorizontal < 0)
+        {
+            SetFacing(1);    // A = left
         }
 
-        //Debug.Log(inputHorizontal);
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            jumpPressed = true;
+        }
     }
 
-
-
+    private void SetFacing(int dir)
+    {
+        Vector3 s = transform.localScale;
+        s.x = startScaleX * dir;
+        transform.localScale = s;
+    }
 
     private void FixedUpdate()
     {
-        float x = inputHorizontal * moveSpeed;
-        float y = rb.linearVelocity.y;
-
-        rb.linearVelocity = new Vector2(x, y);
+        rb.linearVelocity = new Vector2(inputHorizontal * moveSpeed, rb.linearVelocity.y);
 
         if (jumpPressed)
         {
-            float xJump = rb.linearVelocity.x;
-            rb.linearVelocity = new Vector2(xJump, jumpHeight);
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpHeight);
             jumpPressed = false;
         }
-        isGrounded = false;
-
     }
-    
 }
-
