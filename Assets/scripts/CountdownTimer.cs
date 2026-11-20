@@ -30,7 +30,7 @@ public class CountdownTimer : MonoBehaviour
         {
             // time ran out = player survived
             gameEnded = true;
-            timerText.text = "Time's up!";
+            timerText.text = "Nice one!";
             spawner.StopGame();
         }
     }

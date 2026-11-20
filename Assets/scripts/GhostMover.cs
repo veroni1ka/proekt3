@@ -27,7 +27,7 @@ public class GhostMover : MonoBehaviour
         //da odi levo || desno
         transform.position += Vector3.right * direction * speed * Time.deltaTime;
 
-        // turn around at the edges
+        // turn around 
         if (transform.position.x >= rightX) direction = -1;
         if (transform.position.x <= leftX) direction = 1;
 

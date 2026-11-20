@@ -3,11 +3,10 @@ using UnityEngine;
 
 public class ObstacleSpawner : MonoBehaviour
 {
-    public GameObject obstaclePrefab;   
-    public GameObject ghostPrefab;      
-    public GameObject player;           
+    public GameObject obstaclePrefab;
+    public GameObject ghostPrefab;
+    public GameObject player;
 
-    [Header("Fire")]
     public int obstaclesPerRow = 4;
     public float spawnY = 6f;
     public float leftX = -7f;
@@ -16,8 +15,7 @@ public class ObstacleSpawner : MonoBehaviour
     public float startSpeed = 4f;
     public float speedUpPerRound = 0.3f;
 
-    [Header("Ghost")]
-    public int fireOnlyRounds = 3;      
+    public int fireOnlyRounds = 3;
     public float ghostMinY = -2f;
     public float ghostMaxY = -2f;
     public float ghostLeftX = -8f;
@@ -97,7 +95,7 @@ public class ObstacleSpawner : MonoBehaviour
         // za dali da doe od levo ili desno
         float x = Random.value < 0.5f ? ghostLeftX : ghostRightX;
         float y = Random.Range(ghostMinY, ghostMaxY);
-        Vector3 position = new Vector3(x, y, 0f);
+        Vector3 position = new Vector3(x, spawnY, 0f);
 
         ghost = Instantiate(ghostPrefab, position, ghostPrefab.transform.rotation);
         ghost.GetComponent<GhostMover>().Setup(ghostLeftX, ghostRightX);
