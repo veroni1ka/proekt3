@@ -6,7 +6,7 @@ public class GhostMover : MonoBehaviour
 
     private float leftX = -7f;
     private float rightX = 7f;
-    private int direction = 1;
+    private int direction = 1;   
     private SpriteRenderer sr;
 
     void Awake()
@@ -14,7 +14,7 @@ public class GhostMover : MonoBehaviour
         sr = GetComponentInChildren<SpriteRenderer>();
     }
 
-    // the spawner calls this right after it creates the ghost
+    // called by the spawner right after it creates the ghost
     public void Setup(float left, float right)
     {
         leftX = left;
@@ -24,14 +24,14 @@ public class GhostMover : MonoBehaviour
 
     void Update()
     {
-        // move left or right only
-        transform.position += new Vector3(direction * speed * Time.deltaTime, 0f, 0f);
+        //da odi levo || desno
+        transform.position += Vector3.right * direction * speed * Time.deltaTime;
 
         // turn around at the edges
         if (transform.position.x >= rightX) direction = -1;
         if (transform.position.x <= leftX) direction = 1;
 
-        // face the way it moves (if it looks backwards, change < to >)
+        // facing the way it walks
         if (sr != null) sr.flipX = direction < 0;
     }
 
@@ -39,15 +39,12 @@ public class GhostMover : MonoBehaviour
     {
         if (!other.CompareTag("Player")) return;
 
-        Debug.Log("Ghost got the player");
-
-        // remove the whole player
-        GameObject target = other.attachedRigidbody != null
+        // destroy player ako colliderot e on it
+        GameObject player = other.attachedRigidbody != null
             ? other.attachedRigidbody.gameObject
             : other.gameObject;
-        Destroy(target);
+        Destroy(player);
 
-        // tell the timer the game is over
         FindFirstObjectByType<CountdownTimer>().GameOver();
     }
 }

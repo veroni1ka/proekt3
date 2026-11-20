@@ -6,7 +6,7 @@ public class PlayerControler : MonoBehaviour
     public float jumpHeight;
 
     private Rigidbody2D rb;
-    private float moveInput;
+    private float moveInput;      
     private bool wantsToJump;
     private float startScaleX;
 
@@ -18,35 +18,31 @@ public class PlayerControler : MonoBehaviour
 
     void Update()
     {
-        // A = -1, D = +1, nothing = 0
         moveInput = Input.GetAxisRaw("Horizontal");
 
-        // turn the whole character to face the way we walk
-        if (moveInput > 0) Face(-1);   // D (right)
-        if (moveInput < 0) Face(1);    // A (left)
+        // za kade da bide svrten playerot koa se dzvizhi(levo kje bide -/a, desno +/d)
+        if (moveInput != 0)
+        {
+            Vector3 scale = transform.localScale;
+            scale.x = -Mathf.Sign(moveInput) * startScaleX;
+            transform.localScale = scale;
+        }
 
         if (Input.GetKeyDown(KeyCode.Space))
-        {
             wantsToJump = true;
-        }
-    }
-
-    void Face(int direction)
-    {
-        Vector3 scale = transform.localScale;
-        scale.x = startScaleX * direction;
-        transform.localScale = scale;
     }
 
     void FixedUpdate()
     {
-        // walk left or right, keep the up/down speed
-        rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
+        // ist speed osven ako skokne
+        float y = rb.linearVelocity.y;
 
         if (wantsToJump)
         {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpHeight);
+            y = jumpHeight;
             wantsToJump = false;
         }
+
+        rb.linearVelocity = new Vector2(moveInput * moveSpeed, y);
     }
 }
