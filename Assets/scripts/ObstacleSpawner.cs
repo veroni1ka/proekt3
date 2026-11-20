@@ -3,80 +3,88 @@ using UnityEngine;
 
 public class ObstacleSpawner : MonoBehaviour
 {
-    [Header("References")]
-    public GameObject obstaclePrefab;   // FireObstacle prefab
-    public GameObject ghostPrefab;      // Ghost prefab
+    public GameObject obstaclePrefab;   // FireObstacle
+    public GameObject ghostPrefab;      // Ghost
     public GameObject player;           // PlayerRoot
 
-    [Header("Fire")]
     public int obstaclesPerRow = 4;
-    public float spawnY = 6f;
-    public float leftX = -7f;
-    public float rightX = 7f;
+    public float spawnY = 6f;           // height where fire appears
+    public float leftX = -7f;           // fire appears from here...
+    public float rightX = 7f;           // ...to here
     public float delayBetweenRows = 1f;
-    public float baseFallSpeed = 4f;          // speed in round 1
-    public float speedIncreasePerRound = 0.3f;
-    public float maxFallSpeed = 9f;
 
-    [Header("Ghosts")]
-    public int fireOnlyRounds = 3;     // ghosts start AFTER this many rounds
-    public int secondGhostRound = 7;   // from this round on, 2 ghosts
-    public float ghostMinY = -2f;
-    public float ghostMaxY = 3f;
-    public float ghostLifetime = 5f;
+    public float startSpeed = 4f;       // fire speed in round 1
+    public float speedUpPerRound = 0.3f;
 
-    private List<GameObject> currentFire = new List<GameObject>();
+    public int fireOnlyRounds = 3;      // the ghost joins after this many rounds
+    public float ghostMinY = -2f;       // lowest the ghost can appear
+    public float ghostMaxY = -2f;        // highest the ghost can appear
+    public float ghostLeftX = -8f;      // the ghost walks from here...
+    public float ghostRightX = 8f;      // ...to here
+
+    private List<GameObject> fireballs = new List<GameObject>();
+    private GameObject ghost;
     private float timer;
-    private int roundNumber;
-    private bool gameOver;
+    private int round;
+    private bool stopped = false;
 
-    private void Update()
+    // the timer calls this when time is up
+    public void StopGame()
     {
-        if (player == null)
+        stopped = true;
+
+        // remove EVERY fireball in the scene
+        Collectable[] allFire = FindObjectsByType<Collectable>(FindObjectsSortMode.None);
+        foreach (Collectable fire in allFire)
         {
-            if (!gameOver)
-            {
-                gameOver = true;
-                Debug.Log("GAME OVER - you survived " + roundNumber + " rounds");
-            }
-            return;
+            Destroy(fire.gameObject);
         }
 
-        currentFire.RemoveAll(o => o == null);
+        // remove EVERY ghost in the scene
+        GhostMover[] allGhosts = FindObjectsByType<GhostMover>(FindObjectsSortMode.None);
+        foreach (GhostMover g in allGhosts)
+        {
+            Destroy(g.gameObject);
+        }
 
-        // all fire gone and player alive = round survived
-        if (currentFire.Count == 0)
+        fireballs.Clear();
+    }
+    void Update()
+    {
+        // time is up or player is gone = do nothing
+        if (stopped || player == null) return;
+
+        // forget fireballs that were removed
+        fireballs.RemoveAll(f => f == null);
+
+        // no fireballs left = the player survived this round
+        if (fireballs.Count == 0)
         {
             timer += Time.deltaTime;
 
             if (timer >= delayBetweenRows)
             {
-                SpawnRound();
+                StartNextRound();
                 timer = 0f;
             }
         }
     }
 
-    private void SpawnRound()
+    void StartNextRound()
     {
-        roundNumber++;
+        round++;
+        SpawnFireballs();
 
-        SpawnFireRow();
-
-        if (roundNumber > fireOnlyRounds)
+        // after the fire-only rounds, add the ghost (only once)
+        if (round > fireOnlyRounds && ghost == null)
         {
-            int ghostCount = roundNumber >= secondGhostRound ? 2 : 1;
-            SpawnGhosts(ghostCount);
+            SpawnGhost();
         }
     }
 
-    private void SpawnFireRow()
+    void SpawnFireballs()
     {
-        float speed = Mathf.Min(
-            baseFallSpeed + speedIncreasePerRound * (roundNumber - 1),
-            maxFallSpeed
-        );
-
+        float speed = startSpeed + speedUpPerRound * (round - 1);
         float slotWidth = (rightX - leftX) / obstaclesPerRow;
 
         for (int i = 0; i < obstaclesPerRow; i++)
@@ -89,29 +97,22 @@ public class ObstacleSpawner : MonoBehaviour
                 obstaclePrefab.transform.rotation
             );
 
-            Collectable c = fire.GetComponent<Collectable>();
-            if (c != null) c.SetSpeed(speed);
-
-            currentFire.Add(fire);
+            fire.GetComponent<Collectable>().SetSpeed(speed);
+            fireballs.Add(fire);
         }
     }
 
-    private void SpawnGhosts(int count)
+    void SpawnGhost()
     {
-        for (int i = 0; i < count; i++)
-        {
-            float x = Random.Range(leftX, rightX);
-            float y = Random.Range(ghostMinY, ghostMaxY);
+        float x = Random.Range(ghostLeftX, ghostRightX);
+        float y = Random.Range(ghostMinY, ghostMaxY);
 
-            GameObject ghost = Instantiate(
-                ghostPrefab,
-                new Vector3(x, y, 0f),
-                ghostPrefab.transform.rotation
-            );
+        ghost = Instantiate(
+            ghostPrefab,
+            new Vector3(x, y, 0f),
+            ghostPrefab.transform.rotation
+        );
 
-            GhostMover mover = ghost.GetComponent<GhostMover>();
-            if (mover != null) mover.Setup(leftX, rightX, ghostLifetime);
-            // ghosts are NOT added to currentFire, so they don't delay the next round
-        }
+        ghost.GetComponent<GhostMover>().Setup(ghostLeftX, ghostRightX);
     }
 }
