@@ -95,7 +95,7 @@ public class ObstacleSpawner : MonoBehaviour
         // za dali da doe od levo ili desno
         float x = Random.value < 0.5f ? ghostLeftX : ghostRightX;
         float y = Random.Range(ghostMinY, ghostMaxY);
-        Vector3 position = new Vector3(x, spawnY, 0f);
+        Vector3 position = new Vector3(x, y, 0f);
 
         ghost = Instantiate(ghostPrefab, position, ghostPrefab.transform.rotation);
         ghost.GetComponent<GhostMover>().Setup(ghostLeftX, ghostRightX);
